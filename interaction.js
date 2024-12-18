@@ -60,7 +60,7 @@ function draw() {
 }
 
 function loadCardCategories(callback) {
-    loadXML('../../Cards/cardCategories.xml', (xml) => {
+    loadXML('./../cards/cardCategories.xml', (xml) => {
         if (!xml) {
             console.error("Failed to load XML file for categories.");
             return;
@@ -97,7 +97,7 @@ function loadCardCategories(callback) {
 }
 
 function loadCards(callback) {
-    loadXML('../../Cards/cards.xml', (xml) => {
+    loadXML('./../cards/cards.xml', (xml) => {
         if (!xml) {
             console.error("Failed to load XML file.");
             return;
