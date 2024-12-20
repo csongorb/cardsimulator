@@ -16,11 +16,11 @@
 
 ## Release 0.40 (Work in Progress)
 
-- finally: proper setup with separated repositories 
-- p5js can directly access
-- Processing is NOT needed anymore
-	- thank you for everything, it was a pleasure to work with you!
-- no porn anymore
+- finally: proper setup with separate repositories 
+	- p5.js can directly access the XML files in the other repository
+	- Processing is NOT needed anymore
+		- thanks for everything, it was a pleasure to work with you!
+- no more porn!
 
 ## Previous Versions
 
