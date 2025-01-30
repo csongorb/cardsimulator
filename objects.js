@@ -78,7 +78,7 @@ class Card {
 
     // Rotates the card by a small random amount
     newRotation() {
-        this.rotation = random(-this.rotationSpiel, this.rotationSpiel);
+        this.rotation = random(-this.rotationSpiel * 10, this.rotationSpiel* 10);
     }
 
     // Displays the card with text and possible link placeholders
