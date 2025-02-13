@@ -78,7 +78,7 @@ class Card {
 
     // Rotates the card by a small random amount
     newRotation() {
-        this.rotation = random(-this.rotationSpiel * 10, this.rotationSpiel* 10);
+        this.rotation = random(-this.rotationSpiel, this.rotationSpiel);
     }
 
     // Displays the card with text and possible link placeholders
@@ -87,10 +87,10 @@ class Card {
             push();
             translate(this.xPos, this.yPos);
             rotate(this.rotation);
-
+    
             textAlign(CENTER, CENTER);
             strokeWeight(1);
-
+    
             if (this.cType === "display") {
                 // For display cards: black fill with colored border
                 stroke(this.cColor); // Set border color to card color
@@ -101,20 +101,29 @@ class Card {
                 fill(this.cColor);
             }
             rect(0, 0, this.cWidth, this.cHeight, 5);
-
+    
             // Draw card content based on type
             if (this.cType === "link") {
                 noStroke();
                 fill(200);
                 textSize(this.textSize);
-
+    
                 if (this.isLarge) {
                     this.cTitle = this.cTitle.replace("/", " ");
                     textSize(this.textSize * 1.5);
                     text(this.cTitle, 0, -this.cHeight / 2 + 150, this.cWidth, this.cHeight - this.textBorder * 2);
                     textSize(this.textSize * 0.8);
-                    text(this.cText, 0, -this.cHeight / 2 + 250, this.cWidth * 0.6, this.cHeight - this.textBorder * 2);
-
+    
+                    // Wrap text properly
+                    let wrappedText = this.wrapText(this.cText, this.cWidth * 0.6);
+                    let textY = -this.cHeight / 2 + 250;
+                    let lineHeight = this.textSize * 0.8 * 1.2;
+                    
+                    for (let line of wrappedText) {
+                        text(line, 0, textY, this.cWidth * 0.6);
+                        textY += lineHeight;
+                    }
+    
                     // Draw link placeholders only if there are links
                     if (this.cLinks.length > 0) {
                         let totalWidth = 0;
@@ -125,9 +134,9 @@ class Card {
                             totalWidth += textWidth(linkText) + 10;
                         }
                         totalWidth -= 10;
-
+    
                         this.linkBounds = [];
-
+    
                         // Draw placeholders and check for hover
                         let xOffset = -totalWidth / 2;
                         for (let i = 0; i < placeholders.length; i++) {
@@ -136,7 +145,7 @@ class Card {
                             let rightBound = this.xPos + xOffset + placeholderWidth / 2;
                             let topBound = this.yPos - this.cHeight / 2 + 350 - this.textSize / 2;
                             let bottomBound = this.yPos - this.cHeight / 2 + 350 + this.textSize / 2;
-
+    
                             this.linkBounds.push({
                                 left: leftBound,
                                 right: rightBound,
@@ -144,7 +153,7 @@ class Card {
                                 bottom: bottomBound,
                                 linkIndex: i
                             });
-
+    
                             // Highlight link if mouse is over
                             if (mouseX > leftBound && mouseX < rightBound && mouseY > topBound && mouseY < bottomBound) {
                                 textStyle(BOLD);
@@ -158,7 +167,7 @@ class Card {
                                 textStyle(NORMAL);
                                 text(placeholders[i], xOffset, -this.cHeight / 2 + 350);
                             }
-
+    
                             xOffset += placeholderWidth + 10;
                         }
                     }
@@ -169,33 +178,42 @@ class Card {
                     }
                 }
             }
-
+    
             if (this.cType === "display") {
                 let circleDiameter = 20; 
                 noStroke();
                 fill(200);
                 strokeWeight(0);
+    
                 if (this.isLarge) {
                     circleDiameter = 60;
-                    textSize(this.textSize * 1.4) 
-                }else if(this.cText.length > 75){
+                    textSize(this.textSize * 1.4);
+                } else if (this.cText.length > 75) {
                     textSize(this.textSize * 0.7);
-                }else{
+                } else {
                     textSize(this.textSize);
                 }
-
-                text(this.cText, 0, -this.cHeight / 2 / 10 * 2, this.cWidth * 0.6, this.cHeight - this.textBorder * 2);
-            
+    
+                // Wrap text properly
+                let wrappedText = this.wrapText(this.cText, this.cWidth * 0.6);
+                let textY = -this.cHeight / 2 / 10 * 2;
+                let lineHeight = this.textSize * 1.2;
+                
+                for (let line of wrappedText) {
+                    text(line, 0, textY, this.cWidth * 0.6);
+                    textY += lineHeight;
+                }
+    
                 this.cRefColors = [];
-            
+    
                 this.cTags.forEach((tag, index) => {
                     let category = cardCategories[tag];
                     this.cRefColors[index] = color(`#${category.tColor}`);
                 });
-                            
+    
                 const totalWidth = this.cRefColors.length * circleDiameter + (this.cRefColors.length - 1) * 10; 
                 let startX = -totalWidth / 2 + circleDiameter / 2; 
-            
+    
                 for (let i = 0; i < this.cRefColors.length; i++) {
                     fill(this.cRefColors[i]);
                     noStroke();
@@ -205,45 +223,24 @@ class Card {
             pop();
         }
     }
-
-    // Updates the card physics and handles wall collisions
-    update() {
-        if (Math.abs(this.xVel) > 0.05) {
-            this.xPos += this.xVel;
-            this.xVel *= dragMult;
+    
+    wrapText(str, maxWidth) {
+        let words = str.split(" ");
+        let lines = [];
+        let currentLine = words[0];
+    
+        for (let i = 1; i < words.length; i++) {
+            let word = words[i];
+            let testLine = currentLine + " " + word;
+            if (textWidth(testLine) < maxWidth) {
+                currentLine = testLine;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
         }
-
-        if (Math.abs(this.yVel) > 0.05) {
-            this.yPos += this.yVel;
-            this.yVel *= dragMult;
-        }
-
-        // Bounce off walls
-        if (this.xPos < this.cWidth / 2) {
-            this.xPos = this.cWidth / 2;
-            this.xVel = Math.abs(this.xVel);
-        }
-
-        if (this.xPos > windowWidth - this.cWidth / 2) {
-            this.xPos = windowWidth - this.cWidth / 2;
-            this.xVel = -Math.abs(this.xVel);
-        }
-
-        if (this.yPos < this.cHeight / 2) {
-            this.yPos = this.cHeight / 2;
-            this.yVel = Math.abs(this.yVel);
-        }
-
-        if (this.yPos > windowHeight - this.cHeight / 2) {
-            this.yPos = windowHeight - this.cHeight / 2;
-            this.yVel = -Math.abs(this.yVel);
-        }
-    }
-
-    // Sets momentum of the card
-    setMomentum(xM, yM) {
-        this.xVel = xM;
-        this.yVel = yM;
+        lines.push(currentLine); // Add last line
+        return lines;
     }
 }
 

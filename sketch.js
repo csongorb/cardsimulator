@@ -86,11 +86,12 @@ function draw() {
         }
     }
 
-    // Update and display cards
     for (var i = 0; i < cards.length; i++) {
-        cards[i].update();
-        cards[i].display();
+        if (cards[i].visible) { 
+            cards[i].display();
+        }
     }
+    
 
     if (debugOn) {
         noStroke();

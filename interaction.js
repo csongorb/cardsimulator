@@ -1,3 +1,5 @@
+let categoryCheckboxes = [];
+
 function setup() {
     console.log("Setup started");
 
@@ -7,27 +9,141 @@ function setup() {
     rectMode(CENTER);
     console.log("Canvas created and parented");
 
-    // Load categories first, then load cards once categories are ready
+    let urlParams = getURLParams();
+    let requestedCardTitle = urlParams.card ? decodeURIComponent(urlParams.card) : null;
+
     loadCardCategories(() => {
         console.log("Card categories loaded");
 
         loadCards(() => {
             console.log("Cards loaded");
 
-            // Set up rows and columns based on card categories
             setupRowsAndColumns();
-
-            // Only proceed once cards have loaded and rows/columns are set up
             initializeCardRowsAndColumns();
             console.log("initializeCardRowsAndColumns called");
 
             shuffleCards();
             console.log("Cards shuffled");
 
-            createMenu();
-            console.log("Menu created");
+            createMenu();  // Existing menu in bottom left
+            createCategoryFilterMenu();  // New menu in top left
+            console.log("Menus created");
+
+            if (requestedCardTitle) {
+                let matchedCard = cards.find(card => card.filename.toLowerCase() === requestedCardTitle.toLowerCase());
+                if (matchedCard) {
+                    arrangeCardsInDoubleCircle(matchedCard);
+                } else {
+                    console.warn(`Card "${requestedCardTitle}" not found.`);
+                }
+            }
         });
     });
+}
+
+
+
+function createCategoryFilterMenu() {
+    let menuX = 20;
+    let menuY = 20;
+    let checkboxSpacing = 25;
+
+    categoryCheckboxes.forEach(checkbox => checkbox.remove());
+    categoryCheckboxes = [];
+
+    for (let i = 0; i < cardCategories.length; i++) {
+        let category = cardCategories[i];
+
+        let checkbox = createCheckbox(category.tTitle, true);
+        checkbox.position(menuX, menuY + i * checkboxSpacing);
+        checkbox.style('color', `#${category.tColor}`);
+
+        checkbox.changed(() => {
+            updateCardVisibility();
+        });
+
+        category.checkbox = checkbox;
+        categoryCheckboxes.push(checkbox);
+    }
+}
+
+function updateCardVisibility() {
+    for (let card of cards) {
+        let category = cardCategories[card.cID];
+        if (category.checkbox.checked()) {
+            card.visible = true;
+        } else {
+            card.visible = false;
+        }
+    }
+}
+
+
+function arrangeCardsInCircle(selectedCard) {
+    let centerX = windowWidth / 2;
+    let centerY = windowHeight / 2;
+    let radius = min(windowWidth, windowHeight) / 3; // Circle size relative to screen
+
+    selectedCard.xPos = centerX;
+    selectedCard.yPos = centerY;
+
+    let angleStep = TWO_PI / (cards.length - 1);
+    let angle = 0;
+
+    for (let i = 0; i < cards.length; i++) {
+        let card = cards[i];
+
+        // Skip the selected card, it's already centered
+        if (card === selectedCard) continue;
+
+        card.xPos = centerX + cos(angle) * radius;
+        card.yPos = centerY + sin(angle) * radius;
+        angle += angleStep;
+    }
+
+    console.log(`Cards arranged in a circle around: ${selectedCard.cTitle}`);
+}
+
+function arrangeCardsInDoubleCircle(selectedCard) {
+    let centerX = windowWidth / 2;
+    let centerY = windowHeight / 2;
+
+    let innerRadius = min(windowWidth, windowHeight) / 4; // Smaller circle for same category
+    let outerRadius = min(windowWidth, windowHeight) / 2.5; // Larger circle for other categories
+
+    // Set selected card in the center
+    selectedCard.xPos = centerX;
+    selectedCard.yPos = centerY;
+
+    // Split cards into same category and others
+    let sameCategory = [];
+    let otherCategories = [];
+
+    for (let card of cards) {
+        if (card === selectedCard) continue;
+        if (card.cID === selectedCard.cID) {
+            sameCategory.push(card);
+        } else {
+            otherCategories.push(card);
+        }
+    }
+
+    // Distribute cards in circles
+    placeCardsInCircle(sameCategory, centerX, centerY, innerRadius);
+    placeCardsInCircle(otherCategories, centerX, centerY, outerRadius);
+
+    console.log(`Cards arranged: ${sameCategory.length} in inner circle, ${otherCategories.length} in outer circle.`);
+}
+
+function placeCardsInCircle(cardList, centerX, centerY, radius) {
+    let angleStep = TWO_PI / cardList.length;
+    let angle = 0;
+
+    for (let card of cardList) {
+        card.xPos = centerX + cos(angle) * radius;
+        card.yPos = centerY + sin(angle) * radius;
+        angle += angleStep;
+    }
 }
 
 function draw() {
@@ -54,7 +170,6 @@ function draw() {
         } else {
             cards[i].mOverAndTopCard = false;
         }
-        cards[i].update();
         cards[i].display();
     }
 }
