@@ -27,10 +27,11 @@ function setup() {
 
             createMenu();  // Existing menu in bottom left
             createCategoryFilterMenu();  // New menu in top left
+            createPDFButton();
             console.log("Menus created");
 
             if (requestedCardTitle) {
-                let matchedCard = cards.find(card => card.filename.toLowerCase() === requestedCardTitle.toLowerCase());
+                let matchedCard = cards.find(card => card.filename === requestedCardTitle.toLowerCase() || card.cTitle === requestedCardTitle.toLowerCase());
                 if (matchedCard) {
                     arrangeCardsInDoubleCircle(matchedCard);
                 } else {
@@ -41,7 +42,11 @@ function setup() {
     });
 }
 
-
+function createPDFButton() {
+    let pdfButton = createButton("Generate PDF");
+    pdfButton.position(windowWidth - 120, windowHeight - 50);
+    pdfButton.mousePressed(generatePDF);
+}
 
 function createCategoryFilterMenu() {
     let menuX = 20;
@@ -379,4 +384,71 @@ function setupRowsAndColumns() {
     }
 
     console.log("Rows and columns setup complete:", rowsAndColumns);
+}
+
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;  // Ensure jsPDF is properly accessed
+    let pdf = new jsPDF({ unit: "mm", format: "a4" });
+
+    let cardsPerPage = 9; // 3 rows x 3 columns
+    let margin = 10;  // Padding from the edge
+    let cardWidth = (210 - margin * 2) / 3;  // A4 width: 210mm
+    let cardHeight = (297 - margin * 2) / 3; // A4 height: 297mm
+
+    let x = margin;
+    let y = margin;
+    let count = 0;
+
+    for (let i = 0; i < cards.length; i++) {
+        if (!cards[i].visible) continue;  // Skip hidden cards
+
+        let card = cards[i];
+
+        // Correct the card name (replace "/" with a space)
+        let cleanCardTitle = card.cTitle.replace(/\//g, " ");
+        let cardName = card.filename || cleanCardTitle.replace(/ /g, "").toLowerCase();
+        let qrText = `${window.location.origin}/?card=${cardName}`;
+
+        // Draw Card Outline
+        pdf.setDrawColor(0);  // Black outline
+        pdf.rect(x, y, cardWidth, cardHeight);
+
+        // Add Centered Card Title
+        pdf.setFontSize(12);
+        let textWidth = pdf.getStringUnitWidth(cleanCardTitle) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+        let textX = x + (cardWidth / 2) - (textWidth / 2); // Center text horizontally
+        pdf.text(cleanCardTitle, textX, y + 15); // Slight offset for readability
+
+        // Generate QR Code
+        let qrCanvas = document.createElement("canvas");
+        let qr = new QRious({ element: qrCanvas, value: qrText, size: 50 });
+
+        // Center QR Code inside the card
+        let qrSize = 30;  // Adjust QR code size
+        let qrX = x + (cardWidth / 2) - (qrSize / 2);  // Centered horizontally
+        let qrY = y + (cardHeight / 2) - (qrSize / 2);  // Centered vertically
+
+        pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, qrSize, qrSize);
+
+        // Move to Next Position
+        x += cardWidth;
+        count++;
+
+        if (count % 3 === 0) {  // Move to the next row after 3 cards
+            x = margin;
+            y += cardHeight;
+        }
+
+        // If 9 cards are placed, add a new page
+        if (count === cardsPerPage) {
+            pdf.addPage();
+            x = margin;
+            y = margin;
+            count = 0;
+        }
+    }
+
+    // Save the PDF
+    pdf.save("cards.pdf");
 }
