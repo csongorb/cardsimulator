@@ -31,13 +31,24 @@ function setup() {
             console.log("Menus created");
 
             if (requestedCardTitle) {
-                let matchedCard = cards.find(card => card.filename === requestedCardTitle.toLowerCase() || card.cTitle === requestedCardTitle.toLowerCase());
-                if (matchedCard) {
-                    arrangeCardsInDoubleCircle(matchedCard);
+                // Split the parameter by commas and normalize each entry
+                let requestedCardTitles = requestedCardTitle.split(',').map(title => 
+                    title.toLowerCase().replace(/\s+/g, '')
+                );
+            
+                // Find matching cards for each requested title
+                let matchedCards = cards.filter(card =>
+                    requestedCardTitles.includes(card.filename.replace(/\s+/g, '').toLowerCase()) ||
+                    requestedCardTitles.includes(card.cTitle.replace(/\s+/g, '').toLowerCase())
+                );
+                if (matchedCards.length > 1) {
+                    arrangeMultipleCards(matchedCards)
+                }else if (matchedCards.length > 0) {
+                    arrangeCardsInCircle(matchedCards[0]);
                 } else {
-                    console.warn(`Card "${requestedCardTitle}" not found.`);
+                    console.warn(`No matching cards found for: ${requestedCardTitles.join(', ')}`);
                 }
-            }
+            }            
         });
     });
 }
@@ -150,6 +161,107 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
         angle += angleStep;
     }
 }
+
+function arrangeMultipleCards(selectedCards) {
+    if (selectedCards.length === 0) return;
+
+    // Center for selected cards
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = 150; // Radius for selected cards
+
+    // Position selected cards in a circle at the center
+    let angleStep = TWO_PI / selectedCards.length;
+    selectedCards.forEach((card, index) => {
+        let angle = index * angleStep;
+        card.xPos = centerX + cos(angle) * radius;
+        card.yPos = centerY + sin(angle) * radius;
+    });
+
+    // Get remaining (non-selected) cards
+    let otherCards = cards.filter(c => !selectedCards.includes(c));
+    let totalOtherCards = otherCards.length;
+    if (totalOtherCards === 0) return;
+
+    // Get the largest card size
+    let maxCardWidth = Math.max(...otherCards.map(c => c.cWidth));
+    let maxCardHeight = Math.max(...otherCards.map(c => c.cHeight));
+
+    // Define safe outer boundary
+    let margin = 10; // Small margin to prevent clipping
+    let safeLeft = margin + maxCardWidth / 2;
+    let safeRight = width - margin - maxCardWidth / 2;
+    let safeTop = margin + maxCardHeight / 2;
+    let safeBottom = height - margin - maxCardHeight / 2;
+
+    // Place one card in each corner first (if there are at least 4 cards)
+    let remainingCards = [...otherCards];
+    let corners = [];
+    if (remainingCards.length >= 4) {
+        corners.push(remainingCards.shift()); // Top-left
+        corners.push(remainingCards.shift()); // Top-right
+        corners.push(remainingCards.shift()); // Bottom-right
+        corners.push(remainingCards.shift()); // Bottom-left
+    }
+
+    // Assign corner positions
+    if (corners.length === 4) {
+        corners[0].xPos = safeLeft;
+        corners[0].yPos = safeTop; // Top-left
+
+        corners[1].xPos = safeRight;
+        corners[1].yPos = safeTop; // Top-right
+
+        corners[2].xPos = safeRight;
+        corners[2].yPos = safeBottom; // Bottom-right
+
+        corners[3].xPos = safeLeft;
+        corners[3].yPos = safeBottom; // Bottom-left
+    }
+
+    // Calculate available space after corners
+    let horizontalSpace = safeRight - safeLeft - 2 * maxCardWidth; // Space between left and right, minus corners
+    let verticalSpace = safeBottom - safeTop - 2 * maxCardHeight; // Space between top and bottom, minus corners
+
+    let totalEdgeCards = remainingCards.length;
+
+    // Split the remaining cards evenly along the edges
+    let numTop = Math.floor(totalEdgeCards * (horizontalSpace / (2 * horizontalSpace + 2 * verticalSpace)));
+    let numRight = Math.floor(totalEdgeCards * (verticalSpace / (2 * horizontalSpace + 2 * verticalSpace)));
+    let numBottom = Math.floor(totalEdgeCards * (horizontalSpace / (2 * horizontalSpace + 2 * verticalSpace)));
+    let numLeft = totalEdgeCards - (numTop + numRight + numBottom); // Ensure all are used
+
+    let index = 0;
+
+    // Distribute cards along the top edge (between corners)
+    for (let i = 0; i < numTop && remainingCards.length > 0; i++) {
+        let card = remainingCards.shift();
+        card.xPos = safeLeft + maxCardWidth + (i * (horizontalSpace / (numTop - 1)));
+        card.yPos = safeTop;
+    }
+
+    // Distribute cards along the right edge (between corners)
+    for (let i = 0; i < numRight && remainingCards.length > 0; i++) {
+        let card = remainingCards.shift();
+        card.xPos = safeRight;
+        card.yPos = safeTop + maxCardHeight + (i * (verticalSpace / (numRight - 1)));
+    }
+
+    // Distribute cards along the bottom edge (between corners)
+    for (let i = 0; i < numBottom && remainingCards.length > 0; i++) {
+        let card = remainingCards.shift();
+        card.xPos = safeRight - maxCardWidth - (i * (horizontalSpace / (numBottom - 1)));
+        card.yPos = safeBottom;
+    }
+
+    // Distribute cards along the left edge (between corners)
+    for (let i = 0; i < numLeft && remainingCards.length > 0; i++) {
+        let card = remainingCards.shift();
+        card.xPos = safeLeft;
+        card.yPos = safeBottom - maxCardHeight - (i * (verticalSpace / (numLeft - 1)));
+    }
+}
+
 
 function draw() {
     // The draw loop to constantly refresh the canvas
