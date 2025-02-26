@@ -363,7 +363,7 @@ function loadCards(callback) {
                 // Load fields for non-display cards (or untyped ones)
                 let cID = parseInt(cardElement.getChild('cardCategoryId')?.getContent() || "0");
                 let cTitle = cardElement.getChild('title')?.getContent() || "Untitled";
-                let filename = cardElement.getChild('title')?.getString('forcedFilename') || "defaultFilename";
+                let filename = cardElement.getChild('title')?.getString('forcedFilename') || cTitle;
                 let cText = cardElement.getChild('text')?.getContent() || "";
 
                 // Get all links as an array of strings, default to empty array if no links are available
@@ -521,6 +521,8 @@ function generatePDF() {
         let cleanCardTitle = card.cTitle.replace(/\//g, " ");
         let cardName = card.filename || cleanCardTitle.replace(/ /g, "").toLowerCase();
         let qrText = `${window.location}/?card=${cardName}`;
+        console.log(qrText);
+        console.log(window.location);
 
         // Draw Card Outline
         pdf.setDrawColor(0);  // Black outline
