@@ -520,7 +520,7 @@ function generatePDF() {
         // Correct the card name (replace "/" with a space)
         let cleanCardTitle = card.cTitle.replace(/\//g, " ");
         let cardName = card.filename || cleanCardTitle.replace(/ /g, "").toLowerCase();
-        let qrText = `${window.location.origin}/?card=${cardName}`;
+        let qrText = `${window.location}/?card=${cardName}`;
 
         // Draw Card Outline
         pdf.setDrawColor(0);  // Black outline
