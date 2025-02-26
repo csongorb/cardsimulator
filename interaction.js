@@ -1,5 +1,12 @@
 let categoryCheckboxes = [];
 
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("pdfButton").addEventListener("click", openPanel);
+});
+const CARD_WIDTH_MM = 63.5; // Card width in mm
+const CARD_HEIGHT_MM = 88.9; // Card height in mm
+const BLEED_MM = 3; // Extra space for trimming in mm
+
 function setup() {
     console.log("Setup started");
 
@@ -27,7 +34,6 @@ function setup() {
 
             createMenu();  // Existing menu in bottom left
             createCategoryFilterMenu();  // New menu in top left
-            createPDFButton();
             console.log("Menus created");
 
             if (requestedCardTitle) {
@@ -53,11 +59,23 @@ function setup() {
     });
 }
 
-function createPDFButton() {
-    let pdfButton = createButton("Generate PDF");
-    pdfButton.position(windowWidth - 120, windowHeight - 50);
-    pdfButton.mousePressed(generatePDF);
+function openPanel() {
+    document.getElementById("pdfSettingsPanel").style.right = "0";
 }
+
+function closePanel() {
+    document.getElementById("pdfSettingsPanel").style.right = "-300px";
+}
+
+function generatePDFWithSettings() {
+    let includeQR = document.getElementById("includeQR").checked;
+    let singlePage = document.getElementById("singlePage").checked;
+    let colorMode = document.getElementById("colorMode").checked;
+
+    generatePDF(includeQR, singlePage, colorMode);
+    closePanel();
+}
+
 
 function createCategoryFilterMenu() {
     let menuX = 20;
@@ -82,7 +100,6 @@ function createCategoryFilterMenu() {
         categoryCheckboxes.push(checkbox);
     }
 }
-
 function updateCardVisibility() {
     for (let card of cards) {
         let category = cardCategories[card.cID];
@@ -93,8 +110,6 @@ function updateCardVisibility() {
         }
     }
 }
-
-
 function arrangeCardsInCircle(selectedCard) {
     let centerX = windowWidth / 2;
     let centerY = windowHeight / 2;
@@ -119,7 +134,6 @@ function arrangeCardsInCircle(selectedCard) {
 
     console.log(`Cards arranged in a circle around: ${selectedCard.cTitle}`);
 }
-
 function arrangeCardsInDoubleCircle(selectedCard) {
     let centerX = windowWidth / 2;
     let centerY = windowHeight / 2;
@@ -150,7 +164,6 @@ function arrangeCardsInDoubleCircle(selectedCard) {
 
     console.log(`Cards arranged: ${sameCategory.length} in inner circle, ${otherCategories.length} in outer circle.`);
 }
-
 function placeCardsInCircle(cardList, centerX, centerY, radius) {
     let angleStep = TWO_PI / cardList.length;
     let angle = 0;
@@ -161,7 +174,6 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
         angle += angleStep;
     }
 }
-
 function arrangeMultipleCards(selectedCards) {
     if (selectedCards.length === 0) return;
 
@@ -261,8 +273,6 @@ function arrangeMultipleCards(selectedCards) {
         card.yPos = safeBottom - maxCardHeight - (i * (verticalSpace / (numLeft - 1)));
     }
 }
-
-
 function draw() {
     // The draw loop to constantly refresh the canvas
     clear(); // Clear canvas each frame
@@ -290,7 +300,6 @@ function draw() {
         cards[i].display();
     }
 }
-
 function loadCardCategories(callback) {
     loadXML('cards/cardCategories.xml', (xml) => {
         if (!xml) {
@@ -327,7 +336,6 @@ function loadCardCategories(callback) {
         }
     });
 }
-
 function loadCards(callback) {
     loadXML('cards/cards.xml', (xml) => {
         if (!xml) {
@@ -383,7 +391,6 @@ function loadCards(callback) {
         console.log("Cards loaded successfully");
     });
 }
-
 function initializeCardRowsAndColumns() {
     console.log("Test"); // Use "Test" in quotes to log it as a string
 
@@ -398,7 +405,6 @@ function initializeCardRowsAndColumns() {
         card.yPos = startY;  // Place them all at the same Y position (startY)
     }
 }
-
 function shuffleCards() {
     console.log("Shuffling cards...");
 
@@ -470,7 +476,6 @@ function shuffleCards() {
         //moveFirstRowCardsToTop();
     }
 }
-
 function setupRowsAndColumns() {
     console.log("Setting up rows and columns...");
 
@@ -498,71 +503,164 @@ function setupRowsAndColumns() {
     console.log("Rows and columns setup complete:", rowsAndColumns);
 }
 
+async function generatePDF(includeQR, singlePage, colorMode) {
+    const { jsPDF } = window.jspdf;
 
-function generatePDF() {
-    const { jsPDF } = window.jspdf;  // Ensure jsPDF is properly accessed
-    let pdf = new jsPDF({ unit: "mm", format: "a4" });
+    const FULL_CARD_WIDTH = CARD_WIDTH_MM + (2 * BLEED_MM);
+    const FULL_CARD_HEIGHT = CARD_HEIGHT_MM + (2 * BLEED_MM);
 
-    let cardsPerPage = 9; // 3 rows x 3 columns
-    let margin = 10;  // Padding from the edge
-    let cardWidth = (210 - margin * 2) / 3;  // A4 width: 210mm
-    let cardHeight = (297 - margin * 2) / 3; // A4 height: 297mm
+    let pdfFormat = singlePage ? [FULL_CARD_WIDTH, FULL_CARD_HEIGHT] : "a4";
+    let pdf = new jsPDF({
+        unit: "mm",
+        format: pdfFormat,
+        compress: true,
+        precision: 10, 
+    });
+
+    let fontUrl = "cardsimulator/fonts/Ubuntu-Regular.ttf";
+    try {
+        let response = await fetch(fontUrl);
+        if (!response.ok) throw new Error("Font fetch failed!");
+        
+        let fontBlob = await response.blob();
+        let fontBase64 = await blobToBase64(fontBlob);
+        pdf.addFileToVFS("Ubuntu-Regular.ttf", fontBase64);
+        pdf.addFont("Ubuntu-Regular.ttf", "Ubuntu", "normal");
+        pdf.setFont("Ubuntu");
+    } catch (error) {
+        pdf.setFont("helvetica"); 
+    }
+
+    const QR_SIZE = 30;
+    const LINE_HEIGHT = 5;
+    let margin = singlePage ? 0 : 10;
+    let cardWidth = singlePage ? FULL_CARD_WIDTH : (210 - margin * 2) / 3;
+    let cardHeight = singlePage ? FULL_CARD_HEIGHT : (297 - margin * 2) / 3;
+    const MAX_TEXT_HEIGHT = cardHeight * 0.6;
 
     let x = margin;
     let y = margin;
     let count = 0;
 
     for (let i = 0; i < cards.length; i++) {
-        if (!cards[i].visible) continue;  // Skip hidden cards
+        if (!cards[i].visible) continue;
 
         let card = cards[i];
-
-        // Correct the card name (replace "/" with a space)
         let cleanCardTitle = card.cTitle.replace(/\//g, " ");
         let cardName = card.filename || cleanCardTitle.replace(/ /g, "").toLowerCase();
-        let qrText = `${window.location}/?card=${cardName}`;
-        console.log(qrText);
-        console.log(window.location);
+        let qrText = `${window.location.origin}/?card=${cardName}`;
 
-        // Draw Card Outline
-        pdf.setDrawColor(0);  // Black outline
-        pdf.rect(x, y, cardWidth, cardHeight);
-
-        // Add Centered Card Title
-        pdf.setFontSize(12);
-        let textWidth = pdf.getStringUnitWidth(cleanCardTitle) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
-        let textX = x + (cardWidth / 2) - (textWidth / 2); // Center text horizontally
-        pdf.text(cleanCardTitle, textX, y + 15); // Slight offset for readability
-
-        // Generate QR Code
-        let qrCanvas = document.createElement("canvas");
-        let qr = new QRious({ element: qrCanvas, value: qrText, size: 50 });
-
-        // Center QR Code inside the card
-        let qrSize = 30;  // Adjust QR code size
-        let qrX = x + (cardWidth / 2) - (qrSize / 2);  // Centered horizontally
-        let qrY = y + (cardHeight / 2) - (qrSize / 2);  // Centered vertically
-
-        pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, qrSize, qrSize);
-
-        // Move to Next Position
-        x += cardWidth;
-        count++;
-
-        if (count % 3 === 0) {  // Move to the next row after 3 cards
-            x = margin;
-            y += cardHeight;
+        let categoryColor = "#FFFFFF"; 
+        if (colorMode) {
+            let category = cardCategories[card.cID] || { tColor: "CCCCCC" };
+            categoryColor = `#${category.tColor}`;
         }
 
-        // If 9 cards are placed, add a new page
-        if (count === cardsPerPage) {
+        pdf.setFillColor(categoryColor);
+        pdf.rect(x, y, FULL_CARD_WIDTH, FULL_CARD_HEIGHT, "F");
+
+        pdf.setTextColor(colorMode ? 255 : 0); 
+
+        let safeX = x + BLEED_MM;
+        let safeY = y + BLEED_MM;
+        let safeWidth = CARD_WIDTH_MM;
+        let safeHeight = CARD_HEIGHT_MM;
+
+        if (!singlePage) {
+            pdf.setDrawColor(0);
+            pdf.rect(safeX, safeY, safeWidth, safeHeight);
+        }
+
+        pdf.setFontSize(14);
+        let textLines = wrapText(cleanCardTitle, pdf, safeWidth - 10);
+        let textHeight = textLines.length * LINE_HEIGHT;
+
+        let textStartY;
+        if (singlePage) {
+            textStartY = safeY + (safeHeight / 2) - (textHeight / 2);
+        } else {
+            textStartY = safeY + 15;
+        }
+
+        for (let j = 0; j < textLines.length; j++) {
+            if (textStartY + j * LINE_HEIGHT > safeY + MAX_TEXT_HEIGHT) break;
+            pdf.text(textLines[j], safeX + safeWidth / 2, textStartY + j * LINE_HEIGHT, { align: "center" });
+        }
+
+        if (includeQR) {
+            let qrCanvas = document.createElement("canvas");
+            let qr = new QRious({
+                element: qrCanvas,
+                value: qrText,
+                size: QR_SIZE * 4,
+            });
+
+            if (singlePage) {
+                pdf.addPage();
+                pdf.setFillColor(categoryColor);
+                pdf.rect(0, 0, FULL_CARD_WIDTH, FULL_CARD_HEIGHT, "F");
+
+                let qrX = (FULL_CARD_WIDTH / 2) - (QR_SIZE / 2);
+                let qrY = (FULL_CARD_HEIGHT / 2) - (QR_SIZE / 2);
+                pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, QR_SIZE, QR_SIZE);
+            } else {
+                let qrX = safeX + (safeWidth / 2) - (QR_SIZE / 2);
+                let qrY = textStartY + textHeight + 5;
+                if (qrY + QR_SIZE < safeY + safeHeight) {
+                    pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, QR_SIZE, QR_SIZE);
+                }
+            }
+        }
+
+        if (singlePage && i < cards.length - 1) {
             pdf.addPage();
-            x = margin;
-            y = margin;
-            count = 0;
+        } else {
+            x += cardWidth;
+            count++;
+
+            if (count % 3 === 0 && !singlePage) {
+                x = margin;
+                y += cardHeight;
+            }
+
+            if (count === 9 && !singlePage) {
+                pdf.addPage();
+                x = margin;
+                y = margin;
+                count = 0;
+            }
         }
     }
 
-    // Save the PDF
     pdf.save("cards.pdf");
+}
+
+// Convert Blob to Base64 for embedding fonts
+function blobToBase64(blob) {
+    return new Promise((resolve) => {
+        let reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+        reader.readAsDataURL(blob);
+    });
+}
+
+
+function wrapText(text, pdf, maxWidth) {
+    let words = text.split(" ");
+    let lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+        let testLine = currentLine + " " + words[i];
+        let testWidth = pdf.getStringUnitWidth(testLine) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+        
+        if (testWidth < maxWidth) {
+            currentLine = testLine;
+        } else {
+            lines.push(currentLine);
+            currentLine = words[i];
+        }
+    }
+    lines.push(currentLine);
+    return lines;
 }
