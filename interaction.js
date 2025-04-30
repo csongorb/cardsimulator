@@ -18,9 +18,20 @@ function setup() {
 
     let urlParams = getURLParams();
     let requestedCardTitle = urlParams.card ? decodeURIComponent(urlParams.card) : null;
+    let requestedCardState = urlParams.open ? decodeURIComponent(urlParams.open) : null;
 
     loadCardCategories(() => {
         console.log("Card categories loaded");
+
+        // check if we need to "open" cards
+        if (requestedCardState){
+
+            console.log("Card state added to URL: " + requestedCardState);
+
+            if (requestedCardState === "true"){
+                console.log("Requested state is: true");
+            }
+        }
 
         loadCards(() => {
             console.log("Cards loaded");
@@ -54,6 +65,13 @@ function setup() {
                 } else {
                     console.warn(`No matching cards found for: ${requestedCardTitles.join(', ')}`);
                 }
+
+                // "open" cards (make them large) if needed
+                if (matchedCards.length > 0 && requestedCardState === "true") {
+                    matchedCards.forEach((card, index) => {
+                        card.makeLarge();
+                    });
+                }
             }            
         });
     });
@@ -75,7 +93,6 @@ function generatePDFWithSettings() {
     generatePDF(includeQR, singlePage, colorMode);
     closePanel();
 }
-
 
 function createCategoryFilterMenu() {
     let menuX = 20;
@@ -110,6 +127,9 @@ function updateCardVisibility() {
         }
     }
 }
+
+// Arrange Cards in different ways
+
 function arrangeCardsInCircle(selectedCard) {
     let centerX = windowWidth / 2;
     let centerY = windowHeight / 2;
@@ -120,6 +140,8 @@ function arrangeCardsInCircle(selectedCard) {
 
     let angleStep = TWO_PI / (cards.length - 1);
     let angle = 0;
+
+    shuffle(cards, true);
 
     for (let i = 0; i < cards.length; i++) {
         let card = cards[i];
@@ -164,6 +186,7 @@ function arrangeCardsInDoubleCircle(selectedCard) {
 
     console.log(`Cards arranged: ${sameCategory.length} in inner circle, ${otherCategories.length} in outer circle.`);
 }
+
 function placeCardsInCircle(cardList, centerX, centerY, radius) {
     let angleStep = TWO_PI / cardList.length;
     let angle = 0;
@@ -174,20 +197,24 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
         angle += angleStep;
     }
 }
+
 function arrangeMultipleCards(selectedCards) {
     if (selectedCards.length === 0) return;
+
+    shuffle(cards, true);
 
     // Center for selected cards
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = 150; // Radius for selected cards
+    const radius = width / (selectedCards.length + 2); // Radius for selected cards
 
     // Position selected cards in a circle at the center
     let angleStep = TWO_PI / selectedCards.length;
     selectedCards.forEach((card, index) => {
         let angle = index * angleStep;
-        card.xPos = centerX + cos(angle) * radius;
-        card.yPos = centerY + sin(angle) * radius;
+        card.xPos = centerX - ((radius * (selectedCards.length-1)) / 2) + (index * radius);
+        card.yPos = centerY; 
+        // card.yPos = centerY + sin(angle) * radius;
     });
 
     // Get remaining (non-selected) cards
