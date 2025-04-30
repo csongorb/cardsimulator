@@ -23,6 +23,8 @@ class Card {
 
         this.cWidth = 160;
         this.cHeight = 160;
+        this.cCorner = 3;
+        this.cStrokeWeight = 3;
         this.textBorder = 10;
         this.textSize = 14;
         this.visible = true;
@@ -53,11 +55,12 @@ class Card {
                 stroke(this.cColor); // Set border color to card color
                 strokeWeight(3);
             } else {
-                // For other cards: colored fill with no border
+                // For other cards: colored fill with border
                 fill(this.cColor); // Set card fill to card color
-                noStroke();
+                strokeWeight(this.cStrokeWeight);
+                stroke(150);
             }
-            rect(0, 0, this.cWidth, this.cHeight);
+            rect(0, 0, this.cWidth, this.cHeight, this.cCorner);
             pop();
         }
     }

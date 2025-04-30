@@ -90,7 +90,7 @@ function createCategoryFilterMenu() {
 
         let checkbox = createCheckbox(category.tTitle, true);
         checkbox.position(menuX, menuY + i * checkboxSpacing);
-        checkbox.style('color', `#${category.tColor}`);
+        // checkbox.style('color', `#${category.tColor}`);
 
         checkbox.changed(() => {
             updateCardVisibility();
