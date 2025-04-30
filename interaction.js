@@ -59,9 +59,9 @@ function setup() {
                     requestedCardTitles.includes(card.cTitle.replace(/\s+/g, '').toLowerCase())
                 );
                 if (matchedCards.length > 1) {
-                    arrangeMultipleCards(matchedCards)
+                    arrangeMultipleCardsInbetweenChaos(matchedCards)
                 }else if (matchedCards.length > 0) {
-                    arrangeCardsInCircle(matchedCards[0]);
+                    arrangeMultipleCardsInbetweenChaos(matchedCards[0]);
                 } else {
                     console.warn(`No matching cards found for: ${requestedCardTitles.join(', ')}`);
                 }
@@ -198,23 +198,58 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
     }
 }
 
-function arrangeMultipleCards(selectedCards) {
+function arrangeMultipleCardsInbetweenChaos(selectedCards) {
     if (selectedCards.length === 0) return;
 
     shuffle(cards, true);
 
-    // Center for selected cards
+    // Randomly distributing ALL cards
+    // but with a gap in the middle
+    var b = 50;
+    for (var i = 0; i < cards.length; i++) {
+
+        var gapX = 800;
+        var gapY = 500;
+
+        var randomX = random(b, windowWidth - b);
+        var randomY = random(b, windowHeight - b);
+
+        while ((randomX < (windowWidth/2) + (gapX/2) &&
+        randomX > (windowWidth/2) - (gapX/2)) && 
+        (randomY < (windowHeight/2) + (gapY/2) &&
+        randomY > (windowHeight/2) - (gapY/2))) {
+            randomX = random(b, windowWidth - b);
+            randomY = random(b, windowHeight - b);
+        }
+        cards[i].newPos(randomX, randomY);
+    }
+
+    // Place for selected cards
     const centerX = width / 2;
     const centerY = height / 2;
-    const radius = width / (selectedCards.length + 2); // Radius for selected cards
-
-    // Position selected cards in a circle at the center
-    let angleStep = TWO_PI / selectedCards.length;
+    const spaceInbetween = width / (selectedCards.length + 2); // Radius for selected cards
+        
+    // Position selected cards on a line in the middle
     selectedCards.forEach((card, index) => {
-        let angle = index * angleStep;
-        card.xPos = centerX - ((radius * (selectedCards.length-1)) / 2) + (index * radius);
+        card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
         card.yPos = centerY; 
-        // card.yPos = centerY + sin(angle) * radius;
+    });
+}
+
+function arrangeMultipleCardsOnTheSide(selectedCards) {
+    if (selectedCards.length === 0) return;
+
+    shuffle(cards, true);
+
+    // Place for selected cards
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const spaceInbetween = width / (selectedCards.length + 2); // Radius for selected cards
+        
+    // Position selected cards on a line in the middle
+    selectedCards.forEach((card, index) => {
+        card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
+        card.yPos = centerY; 
     });
 
     // Get remaining (non-selected) cards
