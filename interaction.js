@@ -273,11 +273,15 @@ function arrangeMultipleCards(selectedCards) {
         card.yPos = safeBottom - maxCardHeight - (i * (verticalSpace / (numLeft - 1)));
     }
 }
+
 function draw() {
     // The draw loop to constantly refresh the canvas
+
+    // is this not the same loop as in sketch.js?
+
     clear(); // Clear canvas each frame
 
-    drawBack(); // Draw the background (if any drawing elements exist)
+    //drawBack(); // Draw the background (if any drawing elements exist)
 
     if (!dragLock) {
         if (mouseOverVisibleCard()) {
@@ -286,7 +290,7 @@ function draw() {
             cursor(MOVE);
         } else {
             mOverCard = false;
-            cursor(CROSS);
+            cursor(ARROW);
         }
     }
 
@@ -300,6 +304,7 @@ function draw() {
         cards[i].display();
     }
 }
+
 function loadCardCategories(callback) {
     loadXML('cards/cardCategories.xml', (xml) => {
         if (!xml) {

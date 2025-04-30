@@ -71,28 +71,12 @@ function setup() {
 }
 
 // p5 method: draw is called every frame
+
+// slightly confusing, seems to be the same as in interaction.js!
+
 function draw() {
     clear();
-    drawBack();
-
-    if (!dragLock) {
-        if (mouseOverVisibleCard()) {
-            mOverCard = true;
-            mOverTopCardID = getTopCardID();
-            cursor(MOVE);
-        } else {
-            mOverCard = false;
-            cursor(CROSS);
-        }
-    }
-
-    for (var i = 0; i < cards.length; i++) {
-        if (cards[i].visible) { 
-            cards[i].display();
-        }
-    }
     
-
     if (debugOn) {
         noStroke();
         fill(200);
@@ -107,17 +91,24 @@ function draw() {
 
 function drawBack() {
     for (let i = 0; i < cards.length; i++) {
-        cards[i].draw();
+        //cards[i].draw();
     }
 }
 
 function mousePressed() {
+
+    var mouseIsOverCard = false;
+
     // Loop through the cards array in reverse order to check from topmost to bottommost
     for (let i = cards.length - 1; i >= 0; i--) {
         let card = cards[i];
 
         // Check if the mouse is over the card to initiate dragging
         if (card.mouseOver()) {
+
+            // Rotate card
+            card.newRotation();
+
             // Set the clicked card
             clickedCard = card;
 
@@ -132,8 +123,21 @@ function mousePressed() {
             cards.splice(i, 1);
             cards.push(draggedCard);
 
+            mouseIsOverCard = true;
+
             break; // Stop after finding the first card that matches
+        } else {
+
         }
+    }
+
+    if (!mouseIsOverCard){
+        for (var ii = 0; ii < cards.length; ii++) {
+            if (cards[ii].isLarge){
+                cards[ii].makeSmall();
+            }
+        }
+
     }
 }
 
@@ -178,17 +182,9 @@ function mouseReleased() {
     if (!linkClicked && clickedCard) {
         // Toggle the size of the card if it was clicked but not dragged
         if (clickedCard.cWidth > 160) {
-            // Shrink back to original size
-            clickedCard.cWidth /= 5;
-            clickedCard.cHeight /= 4;
-            clickedCard.textSize /= 2;
-            clickedCard.isLarge = false;
+            clickedCard.makeSmall();
         } else {
-            // Make the card bigger
-            clickedCard.cWidth *= 5;
-            clickedCard.cHeight *= 4;
-            clickedCard.textSize *= 2;
-            clickedCard.isLarge = true;
+            clickedCard.makeLarge();
         }
         clickedCard = null;
     }

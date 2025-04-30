@@ -24,7 +24,7 @@ class Card {
         this.cWidth = 160;
         this.cHeight = 160;
         this.cCorner = 3;
-        this.cStrokeWeight = 3;
+        this.cStrokeWeight = 1.2;
         this.textBorder = 10;
         this.textSize = 14;
         this.visible = true;
@@ -43,6 +43,7 @@ class Card {
     }
 
     // Draws the card with rotation and translation
+    // BUT: is this even needed?
     draw() {
         if (this.visible) {
             push();
@@ -58,9 +59,9 @@ class Card {
                 // For other cards: colored fill with border
                 fill(this.cColor); // Set card fill to card color
                 strokeWeight(this.cStrokeWeight);
-                stroke(150);
+                stroke(60);
             }
-            rect(0, 0, this.cWidth, this.cHeight, this.cCorner);
+            //rect(0, 0, this.cWidth, this.cHeight, this.cCorner);
             pop();
         }
     }
@@ -84,7 +85,7 @@ class Card {
         this.rotation = random(-this.rotationSpiel, this.rotationSpiel);
     }
 
-    // Displays the card with text and possible link placeholders
+    // Displays the card text and possible link placeholders
     display() {
         if (this.visible) {
             push();
@@ -92,30 +93,32 @@ class Card {
             rotate(this.rotation);
     
             textAlign(CENTER, CENTER);
-            strokeWeight(1);
+            strokeWeight(0);
     
             if (this.cType === "display") {
                 // For display cards: black fill with colored border
                 stroke(this.cColor); // Set border color to card color
                 fill(0); // Set card fill to black
             } else {
-                // For other cards: colored fill with no border
-                noStroke();
+                // For other cards: colored fill
+                strokeWeight(this.cStrokeWeight);
+                stroke(60);
                 fill(this.cColor);
             }
-            rect(0, 0, this.cWidth, this.cHeight, 5);
+            rect(0, 0, this.cWidth, this.cHeight, this.cCorner);
     
             // Draw card content based on type
             if (this.cType === "link") {
                 noStroke();
                 fill(200);
                 textSize(this.textSize);
-    
+
+                // Draw the LARGE version of the cards!
                 if (this.isLarge) {
                     this.cTitle = this.cTitle.replace("/", " ");
                     textSize(this.textSize * 1.5);
-                    text(this.cTitle, 0, -this.cHeight / 2 + 150, this.cWidth, this.cHeight - this.textBorder * 2);
-                    textSize(this.textSize * 0.8);
+                    text(this.cTitle, 0, -this.cHeight / 2 + 100, this.cWidth, this.cHeight - this.textBorder * 2);
+                    textSize(this.textSize * 1);
     
                     // Wrap text properly
                     let wrappedText = this.wrapText(this.cText, this.cWidth * 0.6);
@@ -139,6 +142,8 @@ class Card {
                         totalWidth -= 10;
     
                         this.linkBounds = [];
+
+                        var yOffsetLinks = 200;
     
                         // Draw placeholders and check for hover
                         let xOffset = -totalWidth / 2;
@@ -146,8 +151,8 @@ class Card {
                             let placeholderWidth = textWidth(placeholders[i]);
                             let leftBound = this.xPos + xOffset - placeholderWidth / 2;
                             let rightBound = this.xPos + xOffset + placeholderWidth / 2;
-                            let topBound = this.yPos - this.cHeight / 2 + 350 - this.textSize / 2;
-                            let bottomBound = this.yPos - this.cHeight / 2 + 350 + this.textSize / 2;
+                            let topBound = this.yPos - this.cHeight / 2 + yOffsetLinks - this.textSize / 2;
+                            let bottomBound = this.yPos - this.cHeight / 2 + yOffsetLinks + this.textSize / 2;
     
                             this.linkBounds.push({
                                 left: leftBound,
@@ -159,16 +164,17 @@ class Card {
     
                             // Highlight link if mouse is over
                             if (mouseX > leftBound && mouseX < rightBound && mouseY > topBound && mouseY < bottomBound) {
-                                textStyle(BOLD);
-                                text(placeholders[i], xOffset, -this.cHeight / 2 + 350);
+                                cursor(ARROW);
+                                textStyle(NORMAL);
+                                text(placeholders[i], xOffset, -this.cHeight / 2 + yOffsetLinks);
                                 stroke(200);
-                                strokeWeight(3);
-                                const underlineY = -this.cHeight / 2 + 355;
+                                strokeWeight(2);
+                                const underlineY = -this.cHeight / 2 + yOffsetLinks + 7;
                                 line(xOffset - placeholderWidth / 2, underlineY, xOffset + placeholderWidth / 2, underlineY);
                             } else {
                                 strokeWeight(0);
                                 textStyle(NORMAL);
-                                text(placeholders[i], xOffset, -this.cHeight / 2 + 350);
+                                text(placeholders[i], xOffset, -this.cHeight / 2 + yOffsetLinks);
                             }
     
                             xOffset += placeholderWidth + 10;
@@ -225,6 +231,22 @@ class Card {
             }
             pop();
         }
+    }
+
+    makeLarge(){
+        // Make the card bigger
+        this.cWidth *= 3;
+        this.cHeight *= 2;
+        this.textSize *= 1;
+        this.isLarge = true;
+    }
+    
+    makeSmall(){
+        // Shrink back to original size
+        this.cWidth /= 3;
+        this.cHeight /= 2;
+        this.textSize /= 1;
+        this.isLarge = false;
     }
     
     wrapText(str, maxWidth) {
