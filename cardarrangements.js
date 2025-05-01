@@ -1,4 +1,3 @@
-
 // Arrange Cards in different ways
 
 function arrangeSelectedCardsOnALine(selectedCards, centerY){
@@ -95,10 +94,13 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
 function arrangeMultipleCardsNextToStacks(selectedCards) {
     if (selectedCards.length === 0) return;
 
+    stackT = 0; // stackType = one stack
+    shuffleCards();
+
     shuffle(cards, true);
 
     // Position selected cards on a line in the middle
-    arrangeSelectedCardsOnALine(selectedCards, windowHeight/6*5);
+    arrangeSelectedCardsOnALine(selectedCards, windowHeight/4*3);
 }
 
 function arrangeMultipleCardsInbetweenChaos(selectedCards) {

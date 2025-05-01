@@ -44,6 +44,8 @@ function setup() {
             createCategoryFilterMenu();  // New menu in top left
             console.log("Menus created");
 
+            
+
             if (requestedCardTitle) {
                 // Split the parameter by commas and normalize each entry
                 let requestedCardTitles = requestedCardTitle.split(',').map(title => 
@@ -56,9 +58,9 @@ function setup() {
                     requestedCardTitles.includes(card.cTitle.replace(/\s+/g, '').toLowerCase())
                 );
                 if (matchedCards.length > 1) {
-                    arrangeMultipleCardsNextToStacks(matchedCards)
+                    arrangeMultipleCardsInbetweenChaos(matchedCards)
                 }else if (matchedCards.length > 0) {
-                    arrangeMultipleCardsNextToStacks(matchedCards[0]);
+                    arrangeMultipleCardsInbetweenChaos(matchedCards[0]);
                 } else {
                     console.warn(`No matching cards found for: ${requestedCardTitles.join(', ')}`);
                 }
