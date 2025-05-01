@@ -1,8 +1,5 @@
 let categoryCheckboxes = [];
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("pdfButton").addEventListener("click", openPanel);
-});
 const CARD_WIDTH_MM = 63.5; // Card width in mm
 const CARD_HEIGHT_MM = 88.9; // Card height in mm
 const BLEED_MM = 3; // Extra space for trimming in mm
@@ -199,6 +196,7 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
 }
 
 function arrangeMultipleCardsInbetweenChaos(selectedCards) {
+
     if (selectedCards.length === 0) return;
 
     shuffle(cards, true);
@@ -224,16 +222,27 @@ function arrangeMultipleCardsInbetweenChaos(selectedCards) {
         cards[i].newPos(randomX, randomY);
     }
 
-    // Place for selected cards
+    // Place selected cards
     const centerX = width / 2;
     const centerY = height / 2;
-    const spaceInbetween = width / (selectedCards.length + 2); // Radius for selected cards
-        
+    const spaceInbetween = width / (selectedCards.length + 2);
+
+    console.log(selectedCards);
+
     // Position selected cards on a line in the middle
-    selectedCards.forEach((card, index) => {
-        card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
-        card.yPos = centerY; 
-    });
+
+    
+    if (selectedCards.length > 1){
+        selectedCards.forEach((card, index) => {
+            console.log(card.cTitle);
+            card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
+            card.yPos = centerY; 
+        });
+    } else {
+        console.log('Got 1 card through parameter: ' + selectedCards.cTitle);
+        selectedCards.xPos = centerX;
+        selectedCards.yPos = centerY; 
+    }
 }
 
 function arrangeMultipleCardsOnTheSide(selectedCards) {
