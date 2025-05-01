@@ -106,9 +106,6 @@ function mousePressed() {
         // Check if the mouse is over the card to initiate dragging
         if (card.mouseOver()) {
 
-            // Rotate card
-            card.newRotation();
-
             // Set the clicked card
             clickedCard = card;
 
@@ -188,6 +185,9 @@ function mouseReleased() {
     }
 
     if (draggedCard) {
+        // Rotate card
+        draggedCard.newRotation();
+
         draggedCard = null; // Release the card after dragging
     }
 }
