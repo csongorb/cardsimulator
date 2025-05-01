@@ -56,9 +56,9 @@ function setup() {
                     requestedCardTitles.includes(card.cTitle.replace(/\s+/g, '').toLowerCase())
                 );
                 if (matchedCards.length > 1) {
-                    arrangeMultipleCardsInbetweenChaos(matchedCards)
+                    arrangeMultipleCardsNextToStacks(matchedCards)
                 }else if (matchedCards.length > 0) {
-                    arrangeMultipleCardsInbetweenChaos(matchedCards[0]);
+                    arrangeMultipleCardsNextToStacks(matchedCards[0]);
                 } else {
                     console.warn(`No matching cards found for: ${requestedCardTitles.join(', ')}`);
                 }
@@ -126,6 +126,29 @@ function updateCardVisibility() {
 }
 
 // Arrange Cards in different ways
+
+function arrangeSelectedCardsOnALine(selectedCards, centerY){
+
+    const centerX = windowWidth / 2;
+
+    const spaceInbetween = width / (selectedCards.length + 2);
+
+    console.log(selectedCards);
+
+    // Position selected cards on a line in the middle
+
+    if (selectedCards.length > 1){
+        selectedCards.forEach((card, index) => {
+            console.log(card.cTitle);
+            card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
+            card.yPos = centerY; 
+        });
+    } else {
+        console.log('Got 1 card through parameter: ' + selectedCards.cTitle);
+        selectedCards.xPos = centerX;
+        selectedCards.yPos = centerY; 
+    }
+}
 
 function arrangeCardsInCircle(selectedCard) {
     let centerX = windowWidth / 2;
@@ -195,6 +218,15 @@ function placeCardsInCircle(cardList, centerX, centerY, radius) {
     }
 }
 
+function arrangeMultipleCardsNextToStacks(selectedCards) {
+    if (selectedCards.length === 0) return;
+
+    shuffle(cards, true);
+
+    // Position selected cards on a line in the middle
+    arrangeSelectedCardsOnALine(selectedCards, windowHeight/6*5);
+}
+
 function arrangeMultipleCardsInbetweenChaos(selectedCards) {
 
     if (selectedCards.length === 0) return;
@@ -223,26 +255,8 @@ function arrangeMultipleCardsInbetweenChaos(selectedCards) {
     }
 
     // Place selected cards
-    const centerX = width / 2;
     const centerY = height / 2;
-    const spaceInbetween = width / (selectedCards.length + 2);
-
-    console.log(selectedCards);
-
-    // Position selected cards on a line in the middle
-
-    
-    if (selectedCards.length > 1){
-        selectedCards.forEach((card, index) => {
-            console.log(card.cTitle);
-            card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
-            card.yPos = centerY; 
-        });
-    } else {
-        console.log('Got 1 card through parameter: ' + selectedCards.cTitle);
-        selectedCards.xPos = centerX;
-        selectedCards.yPos = centerY; 
-    }
+    arrangeSelectedCardsOnALine(selectedCards, centerY);
 }
 
 function arrangeMultipleCardsOnTheSide(selectedCards) {
@@ -250,20 +264,11 @@ function arrangeMultipleCardsOnTheSide(selectedCards) {
 
     shuffle(cards, true);
 
-    // Place for selected cards
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const spaceInbetween = width / (selectedCards.length + 2); // Radius for selected cards
-        
-    // Position selected cards on a line in the middle
-    selectedCards.forEach((card, index) => {
-        card.xPos = centerX - ((spaceInbetween * (selectedCards.length-1)) / 2) + (index * spaceInbetween);
-        card.yPos = centerY; 
-    });
+    let otherCards = cards;
 
-    // Get remaining (non-selected) cards
-    let otherCards = cards.filter(c => !selectedCards.includes(c));
-    let totalOtherCards = otherCards.length;
+    //otherCards = cards.filter(c => !selectedCards.includes(c));
+
+    let totalOtherCards = cards;
     if (totalOtherCards === 0) return;
 
     // Get the largest card size
@@ -343,6 +348,12 @@ function arrangeMultipleCardsOnTheSide(selectedCards) {
         card.xPos = safeLeft;
         card.yPos = safeBottom - maxCardHeight - (i * (verticalSpace / (numLeft - 1)));
     }
+
+    // Place for selected cards
+    const centerY = height / 2;
+    
+    // Position selected cards on a line in the middle
+    arrangeSelectedCardsOnALine(selectedCards, centerY);
 }
 
 function draw() {
