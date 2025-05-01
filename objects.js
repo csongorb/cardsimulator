@@ -115,18 +115,22 @@ class Card {
 
                 // Draw the LARGE version of the cards!
                 if (this.isLarge) {
+
+                    // Show Title
                     this.cTitle = this.cTitle.replace("/", " ");
                     textSize(this.textSize * 1.5);
-                    text(this.cTitle, 0, -this.cHeight / 2 + 100, this.cWidth, this.cHeight - this.textBorder * 2);
+                    text(this.cTitle, 0, -this.cHeight / 2 + 90, this.cWidth, this.cHeight - this.textBorder * 2);
                     textSize(this.textSize * 1);
     
                     // Wrap text properly
                     let wrappedText = this.wrapText(this.cText, this.cWidth * 0.6);
-                    let textY = -this.cHeight / 2 + 250;
+                    let textY = -this.cHeight / 2 + 150;
                     let lineHeight = this.textSize * 0.8 * 1.2;
                     
                     for (let line of wrappedText) {
-                        text(line, 0, textY, this.cWidth * 0.6);
+                        //console.log('A line of text: ' + line);
+                        text(line, 0, textY);
+                        //text(line, 0, textY, this.cWidth * 0.6);
                         textY += lineHeight;
                     }
     
@@ -135,7 +139,8 @@ class Card {
                         let totalWidth = 0;
                         const placeholders = [];
                         for (let i = 0; i < this.cLinks.length; i++) {
-                            const linkText = `(${i + 1})`;
+                            //const linkText = `(${i + 1})`;
+                            const linkText = i + 1;
                             placeholders.push(linkText);
                             totalWidth += textWidth(linkText) + 10;
                         }
@@ -143,7 +148,7 @@ class Card {
     
                         this.linkBounds = [];
 
-                        var yOffsetLinks = 200;
+                        var yOffsetLinks = 240;
     
                         // Draw placeholders and check for hover
                         let xOffset = -totalWidth / 2;
