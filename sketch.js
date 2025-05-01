@@ -126,8 +126,6 @@ function mousePressed() {
             mouseIsOverCard = true;
 
             break; // Stop after finding the first card that matches
-        } else {
-
         }
     }
 
@@ -314,6 +312,18 @@ function createMenu() {
 
     var sShuffle = createSpan("shuffle").style("cursor:pointer;").parent(myStacks);
     sShuffle.mousePressed(shuffleCards);
+
+    var myFooterRight = createDiv("").style("float:right; text-align:right").parent("myFooter");
+    var sPDF = createSpan("pdf").style("cursor:pointer;").parent(myFooterRight);
+    createSpan(" / ").style("cursor:default;").parent(myFooterRight);
+    var sGithub = createSpan("github ").style("cursor:pointer;").parent(myFooterRight);
+    sPDF.mousePressed(openPanel);
+    sGithub.mousePressed(openGithub);
+
+}
+
+function openGithub(){
+    window.open('https://github.com/csongorb/cardsimulator', '_blank');
 }
 
 function toggleRows() {
