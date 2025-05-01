@@ -186,7 +186,10 @@ function mouseReleased() {
 
     if (draggedCard) {
         // Rotate card
-        draggedCard.newRotation();
+
+        if (!linkClicked){
+            draggedCard.newRotation();
+        }
 
         draggedCard = null; // Release the card after dragging
     }
