@@ -334,8 +334,10 @@ async function generatePDF(includeQR, singlePage, colorMode) {
             textStartY = safeY + 25;
         }
 
+        //console.log(textLines);
+
         for (let j = 0; j < textLines.length; j++) {
-            if (textStartY + j * LINE_HEIGHT > safeY + MAX_TEXT_HEIGHT) break;
+            //if (textStartY + (j * LINE_HEIGHT) > safeY + MAX_TEXT_HEIGHT) break;
             pdf.text(textLines[j], safeX + safeWidth / 2, textStartY + j * LINE_HEIGHT, { align: "center" });
         }
 
