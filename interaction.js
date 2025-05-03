@@ -264,16 +264,16 @@ async function generatePDF(includeQR, singlePage, colorMode) {
         precision: 10, 
     });
 
-    let fontUrl = "cardsimulator/fonts/Ubuntu-Regular.ttf";
+    let fontUrl = "cardsimulator/fonts/HelveticaNeueUltraLightv130.ttf";
     try {
         let response = await fetch(fontUrl);
         if (!response.ok) throw new Error("Font fetch failed!");
         
         let fontBlob = await response.blob();
         let fontBase64 = await blobToBase64(fontBlob);
-        pdf.addFileToVFS("Ubuntu-Regular.ttf", fontBase64);
-        pdf.addFont("Ubuntu-Regular.ttf", "Ubuntu", "normal");
-        pdf.setFont("Ubuntu");
+        pdf.addFileToVFS("HelveticaNeueUltraLightv130.ttf", fontBase64);
+        pdf.addFont("HelveticaNeueUltraLightv130.ttf", "HelveticaNeue", "normal");
+        pdf.setFont("HelveticaNeue");
     } catch (error) {
         pdf.setFont("helvetica"); 
     }
@@ -318,7 +318,7 @@ async function generatePDF(includeQR, singlePage, colorMode) {
             pdf.rect(safeX, safeY, safeWidth, safeHeight);
         }
 
-        pdf.setFontSize(14);
+        pdf.setFontSize(16);
         let textLines = wrapText(cleanCardTitle, pdf, safeWidth - 10);
         let textHeight = textLines.length * LINE_HEIGHT;
 
@@ -326,7 +326,7 @@ async function generatePDF(includeQR, singlePage, colorMode) {
         if (singlePage) {
             textStartY = safeY + (safeHeight / 2) - (textHeight / 2);
         } else {
-            textStartY = safeY + 15;
+            textStartY = safeY + 25;
         }
 
         for (let j = 0; j < textLines.length; j++) {
@@ -348,14 +348,14 @@ async function generatePDF(includeQR, singlePage, colorMode) {
                 pdf.rect(0, 0, FULL_CARD_WIDTH, FULL_CARD_HEIGHT, "F");
 
                 let qrX = (FULL_CARD_WIDTH / 2) - (QR_SIZE / 2);
-                let qrY = (FULL_CARD_HEIGHT / 2) - (QR_SIZE / 2);
+                let qrY = (FULL_CARD_HEIGHT / 4 * 3) - (QR_SIZE / 2);
                 pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, QR_SIZE, QR_SIZE);
             } else {
                 let qrX = safeX + (safeWidth / 2) - (QR_SIZE / 2);
-                let qrY = textStartY + textHeight + 5;
-                if (qrY + QR_SIZE < safeY + safeHeight) {
+                let qrY = (FULL_CARD_HEIGHT / 4 * 3) - (QR_SIZE / 2);
+                //if (qrY + QR_SIZE < safeY + safeHeight) {
                     pdf.addImage(qrCanvas.toDataURL(), "PNG", qrX, qrY, QR_SIZE, QR_SIZE);
-                }
+                //}
             }
         }
 
