@@ -324,7 +324,12 @@ async function generatePDF(includeQR, singlePage, colorMode) {
 
         let textStartY;
         if (singlePage) {
-            textStartY = safeY + (safeHeight / 2) - (textHeight / 2);
+            if (!includeQR){
+                textStartY = (FULL_CARD_HEIGHT / 2);
+
+            } else {
+                textStartY = safeY + (safeHeight / 2) - (textHeight / 2);
+            }
         } else {
             textStartY = safeY + 25;
         }
