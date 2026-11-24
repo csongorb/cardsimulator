@@ -21,7 +21,42 @@
 	- some are working with a flexible amount of referenced (URL) cards
 	- some others not
 
-## Release 0.40 (Work in Progress)
+## Release 0.50 (Work in Progress)
+
+- new card table, replacing the p5.js simulator (the old files are in the git history)
+	- plain HTML/CSS/JS modules, no build step, no p5.js
+	- responsive: desktop, tablet, phone
+	- click a card to flip it: questions on the back, "inspire me" (random link) and "more" (numbered link list)
+	- "random card", stacks / pile / random 5, shuffle, a–z sorting, category filters
+	- random 5: the deck is riffled in view, then five cards are dealt into a loose row at random heights (never the same five twice in a row)
+	- short deep links: `?card=name` opens the card
+	- cards have the printed shape (63 × 88) with rounded corners; Helvetica Neue UltraLight throughout
+	- phones: scrolling list, cards open full screen, swipe left / right for the next / previous card, down to close
+	- question / task cards only show when their own category is on (and, if topics are on, one of their topics)
+	- color grading: each card set keeps its own palette; a color is only darkened (in OKLCH, same hue) where pure white text would fall below 4.5:1. `<grading>` in `cardset.xml`: `calm` (one shared muted band) or `off` (XML colors as they are)
+	- prompts on the back of a card are questions: each one ends with a "?" (task cards stay as written)
+	- the table is hidden while a card is open (solid black behind it)
+	- sharp text: readable cards lie straight on whole pixels (only cards covered in a pile are slightly turned); an opened card drops its 3D once it has turned
+	- one motion language: hover lifts, picking up straightens and raises a card, dragging follows the pointer, putting down settles
+	- previous / next on every opened card (also swipe and arrow keys): the card stays, its content slides, and the color blends only when the category changes
+	- the PDF panel opens and closes like a card, out of the "pdf" button
+- clean split between simulator and card sets
+	- `cardsimulator.js` loader: a card set's `index.html` is ~10 lines and identical everywhere
+	- `cards/cardset.xml`: title, repository, public url
+	- no hardcoded paths into the host repository
+	- `template/` with a GitHub Pages deploy workflow (replaces the `xmlfiles.html` workaround)
+- PDF export
+	- one 63 × 88 mm card per page, or A4 sheets (3 × 3 with cut lines)
+	- QR code: none, on the front, or on the back (A4 backs mirrored for double-sided printing)
+	- color (same graded colors as on screen, white text) or black & white
+	- larger titles (up to 32 pt)
+	- QR codes point to the public url from `cardset.xml` (or keep the page path)
+	- QR codes are drawn as vector squares in the card's ink color: every code is exactly the same size (24 mm front, 34 mm back) and centered
+	- long words are never cut in the middle: the title shrinks until its longest word fits
+	- optional category circles at the bottom of every card (question / task cards: their category and all their topics)
+	- question / task cards can be printed too (never with a QR code)
+
+## Release 0.40
 
 - finally: proper setup with separate repositories 
 	- p5.js can directly access the XML files in the other repository
