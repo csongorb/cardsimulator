@@ -1,5 +1,13 @@
 # Card Simulator - Journal
 
+## 2026-11-24 (Csongor)
+
+Just simply: wow!
+
+Haniyeh has helped me to achieve an amazing new step. This feels like a new project now.
+
+Let's see what I can do with it. I suppose I will need to update some of the card-sets now, but this should be now an easy step.
+
 ## 2024-12-20 (Csongor)
 
 I'm so happy that we've managed (thanks Christoph!) to get rid of the Processing "build" cycle, and that this all works now directly through GitHub Pages and a submodule logic. It just feels good to have a version that feels worth working on and updating. Yes, some of the old features (PDF generation, direct link to cards, etc.) are missing, but the new structure is awesome and easy to expand.

@@ -2,14 +2,11 @@
 
 A **tool** to visualise / create / provide **brainstorming cards**.
 
-- digital cards in the browser: arrange them (stacks, pile, random 5), sort a–z, flip one to read its questions
+- digital cards in the browser / mobile: arrange them (stacks, pile, random 5), sort a–z, flip one to read its questions
 - "inspire me": a random link from the card; "more": all of its links
-- phones: a scrolling list, cards open full screen, swipe for the next / previous card
 - print & play PDFs (63 × 88 mm cards or A4 sheets, QR code on the front or back, color or black & white, optional category circles)
 
 Arrange / think / discuss!
-
-Based on: https://bitbucket.org/csongorb/porncreator/
 
 Currently used in:
 
@@ -21,6 +18,8 @@ Currently used in:
 	- https://github.com/csongorb/interfacedesigncards
 - Narrative Design Cards: https://csongorb.github.io/narrativedesigncards/
 	- https://github.com/csongorb/narrativedesigncards
+
+Based on: https://bitbucket.org/csongorb/porncreator/
 
 ## Structure
 
@@ -95,8 +94,10 @@ Thanks to all the **universities / schools / institutions** where I had the oppo
 
 Additional design / coding:
 
+- **Haneyeh Sam**
+	- [haniyehsam.itch.io](https://haniyehsam.itch.io/)
 - **Christoph Maureder**
-	[christophmaureder.me/](https://christophmaureder.me/)
+	- [christophmaureder.me](https://christophmaureder.me/)
 - **Adrian Köhlmoos**
 	- [LinkedIn](https://www.linkedin.com/in/adrian-ace-k%C3%B6hlmoos-30b99212b)
 
