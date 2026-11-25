@@ -10,14 +10,10 @@ Arrange / think / discuss!
 
 Currently used in:
 
-- Level Design Cards: https://csongorb.github.io/leveldesigncards/
-	- https://github.com/csongorb/leveldesigncards
-- Dissecting Games: https://csongorb.github.io/dissectinggames/
-	- https://github.com/csongorb/dissectinggames
-- Interface Design Cards: https://csongorb.github.io/interfacedesigncards/
-	- https://github.com/csongorb/interfacedesigncards
-- Narrative Design Cards: https://csongorb.github.io/narrativedesigncards/
-	- https://github.com/csongorb/narrativedesigncards
+- [Level Design Cards](https://csongorb.github.io/leveldesigncards/)
+- [Interface Design Cards](https://csongorb.github.io/interfacedesigncards/)
+- [Narrative Design Cards](https://csongorb.github.io/narrativedesigncards/)
+- [Dissecting Games](https://csongorb.github.io/dissectinggames/)
 
 Based on: https://bitbucket.org/csongorb/porncreator/
 
@@ -36,6 +32,8 @@ This repository holds everything that **renders** a card set. Card-set repositor
 - `template/`: starter kit for a new card set
 - `journal/`: changelog, journal, screenshots
 
+### A card set
+
 A card set looks like this:
 
 ```
@@ -46,10 +44,11 @@ mycards/
   cards/cards.xml
   texts/                         documents linked from the cards
   .github/workflows/deploy.yml   publishes to GitHub Pages
+  .github/workflows/update-cardsimulator.yml
   cardsimulator/                 this repository, as a submodule (pinned)
 ```
 
-## New card set
+### New card set
 
 1. Create an empty repository on GitHub, clone it.
 2. Copy everything from `template/` into it (including the hidden `.github/` folder and `.gitignore`).
@@ -58,25 +57,9 @@ mycards/
 5. Commit and push.
 6. On GitHub: Settings → Pages → Source → **GitHub Actions**.
 
-## Updating a card set to a newer simulator
+Run locally with any static web server (the XML can't be loaded from `file://`).
 
-The submodule is pinned to a commit, so card sets only change when you decide:
-
-```
-git -C cardsimulator pull origin main
-git add cardsimulator
-git commit -m "Update cardsimulator"
-```
-
-## Run locally
-
-Any static web server, from the card-set folder (the XML can't be loaded from `file://`):
-
-```
-python -m http.server
-```
-
-Then open http://localhost:8000/. Links like `?card=leveldesign` open a card directly.
+Update the simulator: run the *Update cardsimulator submodule* workflow on GitHub Actions, or locally with the help of your Git client.
 
 ## Changelog & Journal
 

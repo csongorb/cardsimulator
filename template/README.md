@@ -6,28 +6,22 @@ This repository holds **content only**. Everything that displays the cards comes
 
 ## Structure
 
-- `cards/cardset.xml`: title, repository and public address of this card set
-- `cards/cardCategories.xml`: the categories (colors, rows)
-- `cards/cards.xml`: the cards and their links
+This repository holds **content only**. Everything that displays the cards comes from [cardsimulator](https://github.com/csongorb/cardsimulator), included as a git submodule (pinned to a commit).
+
+- `cards/cardset.xml`: title, repository and public address (used by the QR codes in PDFs)
+- `cards/cardCategories.xml`, `cards/cards.xml`: the cards
 - `texts/`: documents linked from the cards
 - `index.html`: tiny loader, identical in every card set
-- `.github/workflows/deploy.yml`: publishes the site to GitHub Pages
-- `cardsimulator/`: the simulator (git submodule, pinned to a commit)
+- `.github/workflows/deploy.yml`: publishes the site to GitHub Pages on every push to `main`
+- `.github/workflows/update-cardsimulator.yml`: manual run (workflow_dispatch) that bumps the `cardsimulator` submodule to the newest commit on `main` and pushes the pointer to `main`
+- `cardsimulator/`: the simulator (submodule)
 
-## Run locally
+Run locally with any static web server (the XML can't be loaded from `file://`).
 
-Any static web server works (the XML can't be loaded from `file://`):
+Update the simulator: run the *Update cardsimulator submodule* workflow on GitHub Actions, or locally with the help of your Git client.
 
-```
-python -m http.server
-```
+## Changelog
 
-Then open http://localhost:8000/.
+## Credits
 
-## Update the simulator
-
-```
-git -C cardsimulator pull origin main
-git add cardsimulator
-git commit -m "Update cardsimulator"
-```
+## License
