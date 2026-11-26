@@ -2,24 +2,12 @@
 
 ## Todos / Bugs / Ideas
 
-- ~~rebuilding the "old" structures~~
-	- ~~generating PDFs (see below)~~
-	- ~~making cards directly accessible through direct links (posibly through paremeters)~~
-	- ~~directly selectable categories~~
-	- ~~link to the repository / XML-files with the links (better solution: links are embedded into the cards themselves)~~
-- ~~individual "give me more" text?~~
+- refine how links are visualised unter "more"
+	- 
 - more advanced PDF generator
 	- now that PDFs can be generated "on the fly": adjustable size and colors, etc.
 	- front page with additional information
-- ~~speed improvements, why is it so slow?~~
-- ~~more mobile friendly? how with p5.js?~~
-- ~~PDF generation (for sure: improved enough that we can - now - cross this out)~~
-	- ~~one page generation with QR codes has some bugs (codes are on a separate page)~~
-	- ~~should the html-part be moved to js (and thus to the cardsimulator)? or is it ok to keep it in the html-file? (solved?)~~
-- ~~the whole structure how cards are arrangend needs to be reworked (solved?)~~
-	- ~~now two systems are existing next to each other (my old and Christophs new one)~~
-	- ~~some are working with a flexible amount of referenced (URL) cards~~
-	- ~~some others not~~
+- improve / bug: drag&drop from above / on top of other cards is rotating those, instead of the card that was dragged and dropped
 
 ## Release ??? (Work in Progress)
 
